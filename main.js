@@ -33,7 +33,7 @@ let controls;
 let luminosity;
 let paused = false;
 let autoRotation = true;
-let bloom = { strength: 1.0};
+let bloom = { strength: 1.0, radius: 0.1};
 let bloomPass;
 // motion blur
 let renderTargetParameters;
@@ -199,6 +199,7 @@ function init(typeOfSimulation) {
         0
     );
     bloomPass.strength = bloom.strength;
+    bloomPass.radius = bloom.radius;
 
     composer = new EffectComposer( renderer );
     composer.addPass( renderScene );
@@ -605,13 +606,18 @@ function initGUI() {
     folder1.add( effectController, 'hideDarkMatter', 0, 1, 1 ).onChange( function ( value ) {
         effectController.hideDarkMatter =  value ;
     }   ).name("Hide dark matter");
-    folderGraphicSettings.add( bloom, 'strength', 0.0, 2.0, 0.1 ).onChange(  function ( value ) {
+    folderGraphicSettings.add( bloom, 'strength', 0.0, 20.0, 0.1 ).onChange(  function ( value ) {
         bloom.strength =  value ;
         bloomPass.strength = bloom.strength;
     }  ).name("Bloom");
+    folderGraphicSettings.add( bloom, 'radius', 0.0, 1.0, 0.01 ).onChange(  function ( value ) {
+        bloom.radius =  value ;
+        bloomPass.radius = bloom.radius;
+    }  ).name("Bloom Radius");
     folderGraphicSettings.add( effectController, 'motionBlur', 0, 1, 1 ).onChange( function ( value ) {
         effectController.motionBlur =  value ;
     }   ).name("Motion blur");
+    folderGraphicSettings.add( effectController, 'luminosity', 0.0, 1.0, 0.0001 ).onChange( dynamicValuesChanger ).name("Luminosity");
     if (effectController.typeOfSimulation === 1 || effectController.typeOfSimulation === 3){
         folder1.add( effectController, 'blackHoleForce', 0.0, 10000.0, 1.0 ).onChange( dynamicValuesChanger ).name("Black hole mass");
         folderGraphicSettings.add( effectController, 'maxAccelerationColorPercent', 0.01, 100, 0.01 ).onChange(  function ( value ) {
@@ -624,7 +630,6 @@ function initGUI() {
         folder2.add( effectController, 'middleVelocity', 0.0, 20.0, 0.001 ).name("Center rotation speed");
         folder2.add( effectController, 'velocity', 0.0, 150.0, 0.1 ).name("Initial rotation speed");
     } else if (effectController.typeOfSimulation === 2){
-        folderGraphicSettings.add( effectController, 'luminosity', 0.0, 1.0, 0.0001 ).onChange( dynamicValuesChanger ).name("Luminosity");
         folderGraphicSettings.add( effectController, 'maxAccelerationColorPercent', 0.01, 100, 0.01 ).onChange(  function ( value ) {
             effectController.maxAccelerationColor = value / 10;
             dynamicValuesChanger();
@@ -692,6 +697,7 @@ function switchSimulation(){
             case "1":
                 scene.remove(particles);
                 bloom.strength = 1.0;
+                bloom.radius = 0.1;
                 effectController = {
                     // Can be changed dynamically
                     gravity: gravity,
@@ -727,6 +733,7 @@ function switchSimulation(){
             case "2":
                 scene.remove(particles);
                 bloom.strength = 0.7;
+                bloom.radius = 0.1;
                 effectController = {
                     // Can be changed dynamically
                     gravity: 225.0,
@@ -762,6 +769,7 @@ function switchSimulation(){
             case "3":
                 scene.remove(particles);
                 bloom.strength = 1.0;
+                bloom.radius = 0.1;
                 effectController = {
                     // Can be changed dynamically
                     gravity: 40,
@@ -802,6 +810,7 @@ function switchSimulation(){
             case "1":
                 scene.remove(particles);
                 bloom.strength = 1.0;
+                bloom.radius = 0.1;
                 effectController = {
                     // Can be changed dynamically
                     gravity: gravity,
@@ -837,6 +846,7 @@ function switchSimulation(){
             case "2":
                 scene.remove(particles);
                 bloom.strength = 0.7;
+                bloom.radius = 0.1;
                 effectController = {
                     // Can be changed dynamically
                     gravity: 0.6,
@@ -872,6 +882,7 @@ function switchSimulation(){
             case "3":
                 scene.remove(particles);
                 bloom.strength = 1.0;
+                bloom.radius = 0.1;
                 effectController = {
                     // Can be changed dynamically
                     gravity: gravity,
