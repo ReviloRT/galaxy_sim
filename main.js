@@ -24,6 +24,7 @@ let gpuCompute;
 let velocityVariable;
 let positionVariable;
 let velocityUniforms;
+let positionUniforms;
 let particleUniforms;
 let effectController;
 let particles;
@@ -39,9 +40,9 @@ let renderTargetParameters;
 let savePass;
 let blendPass;
 /*--------------------------INITIALISATION-----------------------------------------------*/
-const gravity = 20;
+const gravity = 0.6;
 const interactionRate = 1.0;
-const timeStep = 0.001;
+const timeStep = 0.0333;
 const blackHoleForce = 100.0;
 const constLuminosity = 1.0;
 const numberOfStars = 30000;
@@ -49,7 +50,7 @@ const radius = 100;
 const height = 5;
 const middleVelocity = 2;
 const velocity = 15;
-const typeOfSimulation = { "Galaxie": 1, "Univers": 2, "Collision de galaxies": 3 };
+const typeOfSimulation = { "Galaxy": 1, "Universe": 2, "Collision of galaxies": 3 };
 renderTargetParameters = {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
@@ -81,8 +82,8 @@ effectController = {
     timeStep: timeStep,
     blackHoleForce: blackHoleForce,
     luminosity: constLuminosity,
-    maxAccelerationColor: 50.0,
-    maxAccelerationColorPercent: 5,
+    maxAccelerationColor: 1.5,
+    maxAccelerationColorPercent: 0.15,
     motionBlur: false,
     hideDarkMatter: false,
 
@@ -238,6 +239,10 @@ function initComputeRenderer(typeOfSimulation) {
     velocityUniforms[ 'uMaxAccelerationColor' ] = { value: 0.0 };
     velocityUniforms[ 'blackHoleForce' ] = { value: 0.0 };
     velocityUniforms[ 'luminosity' ] = { value: 0.0 };
+
+    positionUniforms = positionVariable.material.uniforms;
+    positionUniforms[ 'timeStep' ] = { value: 0.0 };
+
 
     const error = gpuCompute.init();
 
@@ -398,7 +403,7 @@ function fillUniverseTextures( texturePosition, textureVelocity ) {
     const radius = effectController.radius;
 
     // Set the pulse strength
-    let pulseScale = 5;
+    let pulseScale = 5*10;
     if (selectedChoice === 1){
         pulseScale = 3.18;
     }
@@ -574,6 +579,7 @@ function dynamicValuesChanger() {
     velocityUniforms[ 'gravity' ].value = effectController.gravity;
     velocityUniforms[ 'interactionRate' ].value = effectController.interactionRate;
     velocityUniforms[ 'timeStep' ].value = effectController.timeStep;
+    positionUniforms[ 'timeStep' ].value = effectController.timeStep;
     console.log(effectController.maxAccelerationColor);
     velocityUniforms[ 'uMaxAccelerationColor' ].value = effectController.maxAccelerationColor;
     velocityUniforms[ 'blackHoleForce' ].value = effectController.blackHoleForce;
@@ -593,9 +599,9 @@ function initGUI() {
 
     const folder2 = gui.addFolder( 'Static parameters (need to restart the simulation)' );
 
-    folder1.add( effectController, 'gravity', 0.0, 1000.0, 0.05 ).onChange( dynamicValuesChanger ).name("Gravitational force");
+    folder1.add( effectController, 'gravity', 0.0, 1000.0, 0.001 ).onChange( dynamicValuesChanger ).name("Gravitational force");
     folder1.add( effectController, 'interactionRate', 0.0, 1.0, 0.001 ).onChange( dynamicValuesChanger ).name("Interaction rate (%)");
-    folder1.add( effectController, 'timeStep', 0.0, 0.01, 0.0001 ).onChange( dynamicValuesChanger ).name("Time step");
+    folder1.add( effectController, 'timeStep', 0.0, 0.1, 0.0001 ).onChange( dynamicValuesChanger ).name("Time step");
     folder1.add( effectController, 'hideDarkMatter', 0, 1, 1 ).onChange( function ( value ) {
         effectController.hideDarkMatter =  value ;
     }   ).name("Hide dark matter");
@@ -833,9 +839,9 @@ function switchSimulation(){
                 bloom.strength = 0.7;
                 effectController = {
                     // Can be changed dynamically
-                    gravity: 20.0,
+                    gravity: 0.6,
                     interactionRate: 0.05,
-                    timeStep: 0.0001,
+                    timeStep: 0.00333,
                     blackHoleForce: 100.0,
                     luminosity: 0.25,
                     maxAccelerationColor: 2.0,

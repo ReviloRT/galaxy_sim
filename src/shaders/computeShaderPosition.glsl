@@ -1,5 +1,6 @@
 export default `
-#define delta ( 1.0 / 30.0 )
+
+uniform float timeStep;
 
 void main() {
 
@@ -13,7 +14,7 @@ void main() {
 
     // Dynamics
     if (pos.x != 0.0 && pos.y != 0.0 && pos.z != 0.0){
-        pos += vel * delta;
+        pos += vel * timeStep;
     }
 
     // Output the positions and isDarkMatter in the output color
